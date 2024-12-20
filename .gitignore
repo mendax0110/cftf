@@ -7,3 +7,9 @@
 #Ignore the build folder
 build/
 
+#Ignore the .idea folder
+.idea/
+
+#Ignore the cmake-debug folder
+cmake-build-debug/
+

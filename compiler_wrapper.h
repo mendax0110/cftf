@@ -10,13 +10,13 @@ namespace compiler
     class CompilerWrapper
     {
     public:
-        CompilerWrapper(const std::string& compiler = "clang++");
+        CompilerWrapper(std::string  compiler = "clang++");
 
         // Method to invoke the system compiler with given flags
         bool Compile(const std::string& sourceFile, const std::vector<std::string>& flags);
 
         // Get compilation errors if any
-        std::string GetCompilationErrors() const;
+        static std::string GetCompilationErrors() ;
 
     private:
         std::string compiler_;  // Compiler command (clang++)

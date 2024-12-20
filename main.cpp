@@ -18,7 +18,7 @@
 #include <string_view>
 
 
-#ifdef __linux__
+#ifdef __APPLE__
 namespace llvm {
 /**
  * http://lists.llvm.org/pipermail/llvm-dev/2017-January/109621.html
@@ -239,7 +239,7 @@ namespace cftf
         {
             clang::SourceManager& sm = rewriter.getSourceMgr();
             // TODO: Handle stdin
-            auto filename = sm.getFileEntryForID(sm.getMainFileID())->getName().data();
+            auto filename = sm.getFileEntryForID(sm.getMainFileID())->tryGetRealPathName();
             auto commands = global_compilation_database->getCompileCommands(filename);
             assert(commands.size() == 1);
             auto out_filename = GetOutputFilename(commands[0].Filename);
@@ -407,22 +407,22 @@ InternalCommandLine BuildInternalCommandLine(const ParsedCommandLine& parsed_cmd
 
 static std::string GetClangResourceDirectory()
 {
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__APPLE__)
     char resource_dir[PATH_MAX];
     std::FILE* stdout = popen("clang -print-resource-dir", "r");
 #elif defined(_WIN32)
     const auto MAX_PATH = 260;
     char resource_dir[MAX_PATH];
-    auto* stout = _popen("clang -print-resource-dir", "r");
+    auto* stdout = _popen("clang -print-resource-dir", "r");
 #endif
-    if (!stout)
+    if (!stdout)
     {
         std::cerr << "popen failed, falling back to user-specified resource directory for libclang" << std::endl;
         return "";
     }
 
-    auto* resource_line = std::fgets(resource_dir, sizeof(resource_dir), stout);
-    std::fclose(stout);
+    auto* resource_line = std::fgets(resource_dir, sizeof(resource_dir), stdout);
+    std::fclose(stdout);
     if (!resource_line)
     {
         std::cerr << "Error: Clang couldn't find its own resource-directory?" << std::endl;

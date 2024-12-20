@@ -5,12 +5,13 @@
 #include <array>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace compiler
 {
 
-    CompilerWrapper::CompilerWrapper(const std::string& compiler)
-            : compiler_(compiler) {}
+    CompilerWrapper::CompilerWrapper(std::string  compiler)
+            : compiler_(std::move(compiler)) {}
 
     bool CompilerWrapper::Compile(const std::string& sourceFile, const std::vector<std::string>& flags)
     {
@@ -36,14 +37,14 @@ namespace compiler
         return true;
     }
 
-    std::string CompilerWrapper::GetCompilationErrors() const
+    std::string CompilerWrapper::GetCompilationErrors()
     {
         // Capture compilation errors from standard error (stderr)
-        std::array<char, 128> buffer;
+        std::array<char, 128> buffer = {0};
         std::stringstream errors;
-#if defined(__linux__)
+#if defined(__APPLE__)
         FILE* fp = popen("clang++ -v", "r");
-#else if defined(_WIN32)
+#elif defined(_WIN32)
         FILE* fp = _popen("clang++ -v", "r");
 #endif
         if (fp == nullptr)
